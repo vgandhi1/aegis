@@ -1,0 +1,97 @@
+services:
+  # Kafka-compatible broker for SentinelFlow raw telemetry history (host: localhost:9092).
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.11
+    command:
+      - redpanda
+      - start
+      - --smp
+      - "1"
+      - --memory
+      - 1G
+      - --reserve-memory
+      - 0M
+      - --overprovisioned
+      - --node-id
+      - "0"
+      - --check=false
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr
+      - PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+    ports:
+      - "9092:9092"
+      - "9644:9644"
+    volumes:
+      - redpanda:/var/lib/redpanda/data
+
+  # MQTT broker for SentinelFlow ingestion (host: localhost:1883).
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+  nats:
+    image: nats:2.10-alpine
+    command: ["-js", "-m", "8222"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8222/healthz || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  # Creates JetStream stream AEGIS (subjects aegis.>) so edge + correlation can start in any order.
+  nats-init:
+    image: natsio/nats-box:0.14.1
+    depends_on:
+      nats:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        if ! nats -s nats://nats:4222 stream info AEGIS >/dev/null 2>&1; then
+          nats -s nats://nats:4222 stream add AEGIS --subjects "aegis.>" --storage file --defaults
+        fi
+        echo "JetStream AEGIS ready"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: aegis
+      POSTGRES_PASSWORD: aegis
+      POSTGRES_DB: aegis_mes
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aegis -d aegis_mes"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - chdata:/var/lib/clickhouse
+      - ./clickhouse/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8123/ping || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  pgdata:
+  chdata:
+  redpanda:
