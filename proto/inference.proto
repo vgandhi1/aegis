@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package inference;
+option go_package = "aegis/api-gateway/internal/pb";
+
+// AnomalyScorer is the internal gRPC service called by the Go API Gateway
+// to request anomaly scores from the ML inference layer.
+service AnomalyScorer {
+  // ScoreTelemetryBatch accepts a batch of PLC telemetry and returns anomaly scores.
+  rpc ScoreTelemetryBatch (TelemetryBatch) returns (ScoreResponse) {}
+}
+
+message TelemetryBatch {
+  string vin = 1;
+  repeated float torque_readings = 2;
+  repeated float temp_readings = 3;
+}
+
+message ScoreResponse {
+  bool is_anomalous = 1;
+  float confidence_score = 2;
+  string error_context = 3;
+}
