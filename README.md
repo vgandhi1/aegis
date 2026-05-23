@@ -8,6 +8,11 @@
 *every bolt torqued, every firmware flashed, every VIN correlated in real time.*  
 *Then predict the defect before the car leaves the station.*
 
+[![Live Presentation](https://img.shields.io/badge/presentation-live-brightgreen?style=flat-square)](https://vgandhi1.github.io/aegis/)
+[![View Slides](https://img.shields.io/badge/slides-presentation.html-0ea5e9?style=flat-square)](presentation.html)
+
+📊 **[Live Presentation](https://vgandhi1.github.io/aegis/)** · [Static slides](presentation.html) *(GitHub Pages — enable **Pages → Deploy from branch → `gh-pages`** after first push)*
+
 [![Rust](https://img.shields.io/badge/Rust-edge--gateway-CE422B?logo=rust&logoColor=white)](edge-gateway/)
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)](correlation-worker/)
 [![Python](https://img.shields.io/badge/Python-ML%20training-3776AB?logo=python&logoColor=white)](inference-worker/)
@@ -459,6 +464,7 @@ GROUP BY station_id;
 
 ```
 aegis/
+├── presentation.html             Static slide deck (GitHub Pages)
 ├── proto/
 │   └── inference.proto             Protobuf contract — gateway ↔ inference
 │

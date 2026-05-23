@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AEGIS · FORESIGHT — Manufacturing Correlation Engine</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06080f;--bg-card:#0d1219;--bg-card2:#141c28;
+  --accent:#f59e0b;--accent2:#3b82f6;--accent3:#10b981;
+  --red:#ef4444;--purple:#a78bfa;
+  --text:#f1f5f9;--muted:#94a3b8;
+  --border:rgba(245,158,11,.22);--glow:rgba(245,158,11,.08);
+  --mono:'JetBrains Mono','Fira Code',Consolas,monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:52px;
+  background:rgba(6,8,15,.88);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.08em}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap}
+.nav-links a{
+  font-size:10px;color:var(--muted);text-decoration:none;padding:5px 10px;
+  border-radius:6px;transition:all .2s;letter-spacing:.04em;
+}
+.nav-links a:hover,.nav-links a.active{color:var(--text);background:rgba(245,158,11,.12)}
+
+.slide{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;padding:88px 72px 72px;
+  position:relative;border-bottom:1px solid rgba(245,158,11,.08);
+}
+.slide-num{
+  position:absolute;top:68px;right:48px;
+  font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.12em;
+}
+.section-label{
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:10px;
+}
+.slide-title{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.025em;margin-bottom:8px;line-height:1.2}
+.slide-title span{color:var(--accent)}
+.slide-desc{color:var(--muted);font-size:.9rem;margin-bottom:32px;max-width:720px}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:22px}
+.card h3{font-size:.92rem;font-weight:600;margin-bottom:8px}
+.card p{font-size:.82rem;color:var(--muted);line-height:1.55}
+.bt-amber{border-top:3px solid var(--accent)}
+.bt-blue{border-top:3px solid var(--accent2)}
+.bt-green{border-top:3px solid var(--accent3)}
+.bt-red{border-top:3px solid var(--red)}
+.bt-purple{border-top:3px solid var(--purple)}
+
+.tag{display:inline-block;font-family:var(--mono);font-size:.68rem;padding:2px 8px;border-radius:4px;font-weight:600;margin:2px}
+.tg-amber{background:rgba(245,158,11,.15);color:var(--accent)}
+.tg-blue{background:rgba(59,130,246,.15);color:var(--accent2)}
+.tg-green{background:rgba(16,185,129,.15);color:var(--accent3)}
+
+.slide-hero{
+  background:radial-gradient(ellipse 70% 55% at 50% 35%,rgba(245,158,11,.1) 0%,transparent 70%);
+  align-items:center;text-align:center;
+}
+.hero-badge{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);border:1px solid var(--border);border-radius:20px;padding:5px 18px;margin-bottom:22px;background:var(--glow)}
+.hero-h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-.03em;max-width:860px;line-height:1.08;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;margin-bottom:16px}
+.hero-sub{font-size:1rem;color:var(--muted);max-width:640px;margin-bottom:36px}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pill{font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:6px;
+  border:1px solid var(--border);background:var(--bg-card);color:var(--muted)}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:8px;max-width:780px;width:100%}
+.stat-box{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px 14px;text-align:center}
+.stat-val{font-family:var(--mono);font-size:1.8rem;font-weight:800;display:block;color:var(--accent)}
+.stat-lbl{font-size:.74rem;color:var(--muted);margin-top:4px}
+
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.flow-step{
+  flex:1;min-width:100px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;
+  padding:16px 12px;text-align:center;
+}
+.flow-step .si{font-size:1.3rem;margin-bottom:6px;display:block}
+.flow-step .sl{font-size:.78rem;font-weight:600}
+.flow-step .ss{font-size:.7rem;color:var(--muted);margin-top:3px}
+.flow-arrow{display:flex;align-items:center;padding:0 4px;color:var(--accent);font-size:1.1rem}
+
+.arch-diagram{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:14px;
+  padding:28px;font-family:var(--mono);font-size:.72rem;line-height:1.5;
+  overflow-x:auto;white-space:pre;color:var(--muted);
+}
+.arch-diagram .hl{color:var(--accent)}.arch-diagram .hl2{color:var(--accent2)}.arch-diagram .hl3{color:var(--accent3)}
+
+pre{background:#040810;border:1px solid var(--border);border-radius:10px;padding:18px 20px;
+  font-family:var(--mono);font-size:.74rem;line-height:1.65;overflow-x:auto;color:#cbd5e1}
+.kw{color:#c792ea}.str{color:#c3e88d}.num{color:#f78c6c}.cmt{color:#485e774}
+
+.stack-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.stack-table th{background:var(--bg-card2);color:var(--muted);text-align:left;padding:10px 14px;
+  font-size:.72rem;letter-spacing:.05em;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.stack-table td{padding:11px 14px;border-bottom:1px solid rgba(245,158,11,.06);vertical-align:top}
+.stack-table tr:hover td{background:rgba(245,158,11,.04)}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.compare-box{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.compare-box h4{font-size:.8rem;font-family:var(--mono);color:var(--muted);margin-bottom:12px;letter-spacing:.06em}
+
+.pyramid{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
+  padding:24px;font-family:var(--mono);font-size:.75rem;line-height:1.7;color:var(--muted);
+}
+.pyramid .level{padding:8px 14px;margin:4px 0;border-left:3px solid var(--border);background:rgba(255,255,255,.02)}
+.pyramid .level.l5{border-color:var(--red)}.pyramid .level.l4{border-color:var(--accent)}
+.pyramid .level.l3{border-color:var(--accent2)}.pyramid .level.l1{border-color:var(--accent3)}
+
+.slide-final{align-items:center;text-align:center;
+  background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(245,158,11,.07) 0%,transparent 70%)}
+.final-h2{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:900;margin-bottom:14px}
+.final-link{
+  display:inline-block;margin-top:20px;padding:10px 24px;border-radius:8px;
+  background:var(--accent);color:#000;font-weight:700;text-decoration:none;font-size:.85rem;
+}
+.final-link:hover{background:#d97706}
+
+@media(max-width:900px){
+  .slide{padding:72px 24px 56px}
+  .g2,.g3,.g4,.compare,.stat-grid{grid-template-columns:1fr}
+  .flow{flex-direction:column}
+  .flow-arrow{transform:rotate(90deg);justify-content:center}
+  nav{padding:0 16px}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">⚡ AEGIS · FORESIGHT</span>
+  <div class="nav-links">
+    <a href="#title">Intro</a>
+    <a href="#problem">Problem</a>
+    <a href="#idea">Core Idea</a>
+    <a href="#arch">Architecture</a>
+    <a href="#flow">Data Flow</a>
+    <a href="#stack">Stack</a>
+    <a href="#mlops">MLOps</a>
+    <a href="#summary">Summary</a>
+  </div>
+</nav>
+
+<section class="slide slide-hero" id="title">
+  <div class="hero-badge">Unified Manufacturing Correlation + Streaming ML</div>
+  <h1 class="hero-h1">AEGIS · FORESIGHT</h1>
+  <p class="hero-sub">
+    Fuse high-frequency PLC telemetry with live MES work orders — every bolt torqued,
+    every firmware flashed, every VIN correlated in real time. Then predict the defect
+    before the car leaves the station.
+  </p>
+  <div class="pill-row">
+    <span class="pill">Rust Edge Gateway</span>
+    <span class="pill">Go Microservices</span>
+    <span class="pill">NATS JetStream</span>
+    <span class="pill">ClickHouse OLAP</span>
+    <span class="pill">ONNX Inference</span>
+    <span class="pill">React Dashboard</span>
+    <span class="pill">GraphQL · REST · SSE · gRPC</span>
+  </div>
+  <div class="stat-grid" style="margin-top:40px">
+    <div class="stat-box"><span class="stat-val">10 ms</span><div class="stat-lbl">PLC sample interval</div></div>
+    <div class="stat-box"><span class="stat-val">5</span><div class="stat-lbl">Concurrent enrichers</div></div>
+    <div class="stat-box"><span class="stat-val">500</span><div class="stat-lbl">Row ClickHouse batches</div></div>
+    <div class="stat-box"><span class="stat-val">0</span><div class="stat-lbl">Downtime model hot-swap</div></div>
+  </div>
+</section>
+
+<section class="slide" id="problem">
+  <span class="slide-num">02 / 08</span>
+  <div class="section-label">Problem Statement</div>
+  <h2 class="slide-title">The ISA-95 pyramid is a <span>data silo</span></h2>
+  <p class="slide-desc">Traditional factory software passes data sequentially up a rigid hierarchy. By the time a torque anomaly reaches an enterprise dashboard, it has lost its link to the specific VIN being built.</p>
+
+  <div class="g2">
+    <div class="pyramid">
+      <div class="level l5">Level 5 · Enterprise / ERP — days of latency</div>
+      <div class="level l4">Level 4 · MES · Work Orders · Firmware — minutes</div>
+      <div class="level l3">Level 3 · SCADA / DCS ◄── the silo wall</div>
+      <div class="level l1">Level 1 · PLC / Sensors — raw truth @ 10 ms</div>
+    </div>
+    <div class="g2" style="grid-template-columns:1fr">
+      <div class="card bt-red">
+        <h3>🔒 Siloed Context</h3>
+        <p>Edge telemetry and MES state live in separate systems. Root-cause analysis becomes a forensic nightmare.</p>
+      </div>
+      <div class="card bt-amber">
+        <h3>⏱ Late Detection</h3>
+        <p>Quality issues surface after the vehicle leaves the station — expensive rework and recall risk.</p>
+      </div>
+      <div class="card bt-green">
+        <h3>✅ Aegis Collapses the Stack</h3>
+        <p>Edge and MES publish to a shared event stream. Correlation joins them in memory — enriched telemetry in milliseconds, not minutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="idea">
+  <span class="slide-num">03 / 08</span>
+  <div class="section-label">Core Idea</div>
+  <h2 class="slide-title">Stream–table join + <span>streaming inference</span></h2>
+  <p class="slide-desc">Every PLC reading is a point in time. Every MES update is a slow-moving fact. Aegis performs an in-memory join before data touches the database.</p>
+
+  <div class="compare">
+    <div class="compare-box">
+      <h4>BEFORE — raw edge telemetry</h4>
+      <pre>{
+  <span class="str">"station_id"</span>: <span class="str">"5"</span>,
+  <span class="str">"torque"</span>:     <span class="num">43.21</span>,
+  <span class="str">"timestamp"</span>:  <span class="num">1714234567890</span>
+}</pre>
+    </div>
+    <div class="compare-box">
+      <h4>AFTER — enriched in ClickHouse</h4>
+      <pre>{
+  <span class="str">"station_id"</span>: <span class="str">"5"</span>,
+  <span class="str">"torque"</span>:     <span class="num">43.21</span>,
+  <span class="str">"timestamp"</span>:  <span class="num">1714234567890</span>,
+  <span class="str">"vin"</span>:        <span class="str">"1HGBH41JXMN100005"</span>,
+  <span class="str">"firmware"</span>:   <span class="str">"v2.1.4"</span>
+}</pre>
+    </div>
+  </div>
+
+  <div class="card bt-purple" style="margin-top:24px">
+    <h3>🧠 Foresight — defect alert before the station clears</h3>
+    <p style="margin-bottom:12px">When anomaly score exceeds threshold, a <code>DefectAlert</code> publishes to NATS and streams to the dashboard via SSE:</p>
+    <pre style="margin:0;background:transparent;border:none;padding:0">{
+  <span class="str">"station_id"</span>: <span class="str">"5"</span>, <span class="str">"anomaly_score"</span>: <span class="num">0.97</span>,
+  <span class="str">"trigger_torque_nm"</span>: <span class="num">61.8</span>, <span class="str">"timestamp"</span>: <span class="num">1714234567890</span>
+}</pre>
+  </div>
+</section>
+
+<section class="slide" id="arch">
+  <span class="slide-num">04 / 08</span>
+  <div class="section-label">Architecture</div>
+  <h2 class="slide-title">Event-driven <span>correlation core</span></h2>
+  <p class="slide-desc">Edge, MES, correlation, inference, and API layers communicate exclusively through NATS JetStream — independent durable consumers, no coupling.</p>
+
+  <div class="arch-diagram"><span class="hl">Edge (Rust)</span> ──► aegis.telemetry.raw ──┬──► <span class="hl2">Correlation Worker</span> ──► ClickHouse
+                                      │
+<span class="hl">MES (Go)</span> ──────► aegis.mes.state ────┤    (RWMutex station cache)
+                                      │
+                                      └──► <span class="hl3">Inference Worker</span> ──► aegis.defect.alerts ──► SSE Dashboard
+
+<span class="hl2">API Gateway</span> (:8081)
+  ├── REST   /auth/token · /webhooks/mes
+  ├── GraphQL /graphql  → ClickHouse queries
+  ├── SSE    /api/v1/alerts/stream
+  └── gRPC   :9090 AnomalyScorer.ScoreTelemetryBatch</div>
+
+  <div class="g3" style="margin-top:24px">
+    <div class="card bt-amber"><h3>🦀 Edge Gateway</h3><p>Deterministic PLC mock at up to 1 kHz. Publishes torque samples to JetStream.</p></div>
+    <div class="card bt-blue"><h3>🐹 Correlation Worker</h3><p>5 enricher goroutines · stream–table join · 500-row batch writer to ClickHouse.</p></div>
+    <div class="card bt-green"><h3>🧠 Inference Worker</h3><p>Hot-swap ONNX scorer under RWMutex. Fail-open — never stops the line.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="flow">
+  <span class="slide-num">05 / 08</span>
+  <div class="section-label">Data Flow</div>
+  <h2 class="slide-title">Seven steps from <span>PLC to alert</span></h2>
+  <p class="slide-desc">End-to-end path from raw sensor sample to live dashboard alert — all under a second in dev, sub-second at scale.</p>
+
+  <div class="flow">
+    <div class="flow-step"><span class="si">①</span><div class="sl">Edge Publish</div><div class="ss">20 samples/sec → raw topic</div></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="si">②</span><div class="sl">MES State</div><div class="ss">VIN + firmware → cache</div></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="si">③</span><div class="sl">Enrich</div><div class="ss">5 goroutines join</div></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="si">④</span><div class="sl">ClickHouse</div><div class="ss">250 ms flush</div></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="si">⑤</span><div class="sl">Score</div><div class="ss">Foresight inference</div></div></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="si">⑥</span><div class="sl">Alert</div><div class="ss">NATS → SSE</div></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><span class="si">⑦</span><div class="sl">Dashboard</div><div class="ss">React live UI</div></div>
+  </div>
+
+  <div class="g2" style="margin-top:28px">
+    <div class="card bt-blue">
+      <h3>Query that becomes trivial</h3>
+      <p style="font-style:italic;color:var(--text);font-size:.85rem">"Show every torque reading &gt; 50 Nm for VINs built with firmware v2.1.4 that later reported a steering defect."</p>
+      <p style="margin-top:10px">One ClickHouse SELECT — because enrichment happened at ingest time.</p>
+    </div>
+    <div class="card bt-amber">
+      <h3>Why NATS JetStream?</h3>
+      <p>Durable at-least-once delivery with low ops overhead. Independent consumers for correlation and inference advance at their own pace — no coupling.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="stack">
+  <span class="slide-num">06 / 08</span>
+  <div class="section-label">Technology</div>
+  <h2 class="slide-title">Polyglot stack, <span>single event bus</span></h2>
+
+  <table class="stack-table">
+    <thead><tr><th>Layer</th><th>Technology</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag tg-amber">Edge</span></td><td>Rust · Tokio · async-nats</td><td>PLC mock → JetStream, graceful SIGINT</td></tr>
+      <tr><td><span class="tag tg-blue">Broker</span></td><td>NATS JetStream</td><td>AEGIS stream on aegis.&gt; · 24h retention</td></tr>
+      <tr><td><span class="tag tg-blue">MES</span></td><td>Go · pgx/v5 · PostgreSQL 16</td><td>Work order CRUD + state publisher</td></tr>
+      <tr><td><span class="tag tg-green">Core</span></td><td>Go · sync.RWMutex · ClickHouse 24</td><td>Stream–table join · OLAP storage</td></tr>
+      <tr><td><span class="tag tg-green">ML</span></td><td>Go inference + Python training</td><td>ONNX hot-swap · z-score in dev</td></tr>
+      <tr><td><span class="tag tg-blue">API</span></td><td>Go · GraphQL · SSE · gRPC</td><td>Polyglot gateway on :8081 / :9090</td></tr>
+      <tr><td><span class="tag tg-amber">UI</span></td><td>React 18 · TypeScript 5 · Vite</td><td>MES snapshot · live SSE alerts</td></tr>
+    </tbody>
+  </table>
+
+  <div class="g3" style="margin-top:24px">
+    <div class="card"><h3>GraphQL for UI</h3><p>Supervisors need varying detail — no over-fetching on telemetry queries.</p></div>
+    <div class="card"><h3>REST for webhooks</h3><p>Legacy Level-4 MES systems ingest state via JSON-over-HTTP.</p></div>
+    <div class="card"><h3>SSE for alerts</h3><p>One-direction server→browser. No WebSocket complexity for defect streams.</p></div>
+  </div>
+</section>
+
+<section class="slide" id="mlops">
+  <span class="slide-num">07 / 08</span>
+  <div class="section-label">Foresight MLOps</div>
+  <h2 class="slide-title">Online scoring + <span>offline training</span></h2>
+  <p class="slide-desc">Inference runs continuously on live telemetry. A nightly Python job retrains from ClickHouse labels and exports ONNX to S3 — zero-downtime hot-swap every 5 minutes.</p>
+
+  <div class="arch-diagram">Model Registry (S3 / MLflow)
+        │ poll every 5 min
+        ▼
+Inference Worker
+  ┌─────────────────────────────────┐
+  │  scorer.Swap(newConfig)         │  ← write lock (µs)
+  │  sync.RWMutex hot-swap          │
+  │  scorer.Score(torqueReadings)   │  ← read lock (concurrent)
+  └─────────────────────────────────┘
+        │ score &gt; 0.95
+        ▼
+  aegis.defect.alerts  →  SSE  →  Dashboard</div>
+
+  <div class="g2" style="margin-top:24px">
+    <div class="card bt-green">
+      <h3>Fail-open by design</h3>
+      <p>The ML model is experimental. A scoring bug must never stop the assembly line. NATS ack happens before scoring — errors are logged, production continues.</p>
+    </div>
+    <div class="card bt-blue">
+      <h3>gRPC for batch scoring</h3>
+      <p>Protobuf binary encoding for 1,000-metric batches — smaller and faster than JSON arrays over HTTP.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide slide-final" id="summary">
+  <span class="slide-num">08 / 08</span>
+  <div class="section-label">Summary</div>
+  <h2 class="final-h2">Built to answer the question a quality engineer<br>should never struggle to ask</h2>
+  <p style="color:var(--muted);max-width:640px;font-size:.95rem">
+    <em>"What was happening to VIN 1HGBH41JXMN100042 — physically and in software — at 09:22:47?<br>And did Foresight see it coming?"</em>
+  </p>
+  <div class="pill-row" style="margin-top:32px">
+    <span class="pill">github.com/vgandhi1/aegis</span>
+    <span class="pill">make infra-up && make web</span>
+    <span class="pill">Docker Compose included</span>
+  </div>
+  <a class="final-link" href="https://github.com/vgandhi1/aegis" target="_blank" rel="noopener">View Repository →</a>
+</section>
+
+<script>
+const sections=document.querySelectorAll('.slide[id]');
+const links=document.querySelectorAll('.nav-links a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id));
+    }
+  });
+},{rootMargin:'-40% 0px -55% 0px'});
+sections.forEach(s=>obs.observe(s));
+document.addEventListener('keydown',e=>{
+  const ids=[...sections].map(s=>s.id);
+  const idx=ids.findIndex(id=>document.getElementById(id).getBoundingClientRect().top>=-100);
+  if(e.key==='ArrowDown'||e.key==='PageDown'){e.preventDefault();document.getElementById(ids[Math.min(idx+1,ids.length-1)]).scrollIntoView({behavior:'smooth'});}
+  if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();document.getElementById(ids[Math.max(idx-1,0)]).scrollIntoView({behavior:'smooth'});}
+});
+</script>
+</body>
+</html>
