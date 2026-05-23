@@ -11,7 +11,7 @@
 [![Live Presentation](https://img.shields.io/badge/presentation-live-brightgreen?style=flat-square)](https://vgandhi1.github.io/aegis/)
 [![View Slides](https://img.shields.io/badge/slides-presentation.html-0ea5e9?style=flat-square)](presentation.html)
 
-📊 **[Live Presentation](https://vgandhi1.github.io/aegis/)** · [Static slides](presentation.html) *(GitHub Pages — enable **Pages → Deploy from branch → `gh-pages`** after first push)*
+📊 **[Live Presentation](https://vgandhi1.github.io/aegis/)** · [Static slides](presentation.html) *(Pages: **Settings → Pages → Source: GitHub Actions**, then run **Deploy GitHub Pages** workflow)*
 
 [![Rust](https://img.shields.io/badge/Rust-edge--gateway-CE422B?logo=rust&logoColor=white)](edge-gateway/)
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)](correlation-worker/)
